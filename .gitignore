@@ -1,3 +1,6 @@
+# Datasets (too large for git)
+ml/datasets/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
