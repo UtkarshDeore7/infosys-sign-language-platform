@@ -1,3 +1,7 @@
+# Training data (too large for git)
+ml/training/landmarks.csv
+ml/training/skipped_images.txt
+
 # Datasets (too large for git)
 ml/datasets/
 
