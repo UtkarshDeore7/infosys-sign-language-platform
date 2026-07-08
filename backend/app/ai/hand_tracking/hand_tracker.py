@@ -3,14 +3,10 @@ import mediapipe as mp
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
 from mediapipe.tasks.python.vision import HandLandmarker, HandLandmarkerOptions
-import sys
 import os
-import time
+from pathlib import Path
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
-from ai.utils.camera import Camera
-
-MODEL_PATH = "ml/models/hand_landmarker.task"
+MODEL_PATH = str(Path(__file__).resolve().parent.parent.parent.parent.parent / "ml" / "models" / "hand_landmarker.task")
 
 CONNECTIONS = [
     (0,1),(1,2),(2,3),(3,4),
@@ -21,9 +17,45 @@ CONNECTIONS = [
     (5,9),(9,13),(13,17)
 ]
 
-def draw_landmarks(frame, hand_landmarks_list):
-    h, w, _ = frame.shape
-    for hand_landmarks in hand_landmarks_list:
+class HandTracker:
+    def __init__(self):
+        options = HandLandmarkerOptions(
+            base_options=python.BaseOptions(model_asset_path=MODEL_PATH),
+            num_hands=1,
+            min_hand_detection_confidence=0.5,
+            min_hand_presence_confidence=0.5,
+            min_tracking_confidence=0.5,
+            running_mode=vision.RunningMode.IMAGE
+        )
+        self.landmarker = HandLandmarker.create_from_options(options)
+
+    def detect(self, image_bytes: bytes):
+        """Takes raw image bytes, returns landmarks or None"""
+        import numpy as np
+        nparr = np.frombuffer(image_bytes, np.uint8)
+        img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+        if img is None:
+            return None
+        rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb)
+        result = self.landmarker.detect(mp_image)
+        if result.hand_landmarks:
+            return result.hand_landmarks[0]
+        return None
+
+    def get_landmarks(self, image_bytes: bytes):
+        """Returns flattened landmark vector (63 values) or None"""
+        landmarks = self.detect(image_bytes)
+        if landmarks is None:
+            return None
+        vector = []
+        for lm in landmarks:
+            vector.extend([lm.x, lm.y, lm.z])
+        return vector
+
+    def draw(self, frame, hand_landmarks):
+        """Draw landmarks on frame"""
+        h, w, _ = frame.shape
         for lm in hand_landmarks:
             cx, cy = int(lm.x * w), int(lm.y * h)
             cv2.circle(frame, (cx, cy), 5, (0, 255, 0), -1)
@@ -33,58 +65,4 @@ def draw_landmarks(frame, hand_landmarks_list):
             x2 = int(hand_landmarks[end].x * w)
             y2 = int(hand_landmarks[end].y * h)
             cv2.line(frame, (x1, y1), (x2, y2), (0, 0, 255), 2)
-
-def run_hand_tracking():
-    options = HandLandmarkerOptions(
-        base_options=python.BaseOptions(model_asset_path=MODEL_PATH),
-        num_hands=2,
-        min_hand_detection_confidence=0.5,
-        min_hand_presence_confidence=0.5,
-        min_tracking_confidence=0.5,
-        running_mode=vision.RunningMode.IMAGE
-    )
-
-    cam = Camera()
-    print("Hand tracking started. Press Q to quit.")
-
-    prev_time = 0
-
-    with HandLandmarker.create_from_options(options) as landmarker:
-        while True:
-            frame = cam.get_frame()
-            if frame is None:
-                break
-
-            frame = cv2.flip(frame, 1)
-            rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb_frame)
-
-            result = landmarker.detect(mp_image)
-
-            # FPS calculation
-            curr_time = time.time()
-            fps = 1 / (curr_time - prev_time) if prev_time else 0
-            prev_time = curr_time
-
-            # Display FPS
-            cv2.putText(frame, f"FPS: {int(fps)}",
-                       (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 0), 2)
-
-            if result.hand_landmarks:
-                draw_landmarks(frame, result.hand_landmarks)
-                num_hands = len(result.hand_landmarks)
-                cv2.putText(frame, f"Hands: {num_hands}",
-                           (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-            else:
-                cv2.putText(frame, "No Hand Detected",
-                           (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
-
-            cv2.imshow("Hand Tracking", frame)
-
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                break
-
-    cam.release()
-
-if __name__ == "__main__":
-    run_hand_tracking()
+        return frame
