@@ -4,6 +4,9 @@ import models
 from routes import router
 from api.health import router as health_router
 from api.predict import router as predict_router
+from api.lessons import router as lessons_router
+from api.sessions import router as sessions_router
+from api.preprocess import router as preprocess_router
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -16,6 +19,9 @@ app = FastAPI(
 app.include_router(router, prefix="/api")
 app.include_router(health_router, prefix="/api")
 app.include_router(predict_router, prefix="/api")
+app.include_router(lessons_router, prefix="/api")
+app.include_router(sessions_router, prefix="/api")
+app.include_router(preprocess_router, prefix="/api")
 
 @app.get("/")
 def root():

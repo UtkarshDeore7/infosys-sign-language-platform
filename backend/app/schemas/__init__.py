@@ -34,3 +34,12 @@ class LearnerProfileResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+        from datetime import datetime
+from typing import Any, Optional
+
+class APIResponse(BaseModel):
+    success: bool
+    message: str
+    data: Optional[Any] = None
+    timestamp: str = datetime.now().isoformat()
