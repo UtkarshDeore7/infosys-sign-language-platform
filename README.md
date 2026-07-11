@@ -15,23 +15,31 @@ This platform helps users learn sign language through real-time gesture recognit
 **DevOps:** Docker, GitHub Actions  
 
 ## Project Structure
+
 infosys-sign-language-platform/
 ├── backend/
 │   └── app/
 │       ├── ai/
-│       │   ├── hand_tracking/    # MediaPipe hand tracking
-│       │   ├── gesture_recognition/  # Gesture classifier
-│       │   └── utils/            # Camera, distance utils
-│       ├── auth.py               # JWT authentication
-│       ├── models.py             # Database models
-│       ├── routes.py             # API endpoints
-│       └── main.py               # FastAPI app
-├── frontend/                     # React/Next.js (upcoming)
+│       │   ├── hand_tracking/     # MediaPipe hand tracking
+│       │   ├── gesture_recognition/
+│       │   └── utils/             # Camera, distance utils
+│       ├── api/                   # Route handlers
+│       ├── content/               # Lesson service
+│       ├── services/              # Business logic
+│       ├── schemas/               # Pydantic models
+│       ├── core/                  # Core utilities
+│       ├── utils/                 # Shared utilities
+│       ├── auth.py                # JWT authentication
+│       ├── database.py            # DB connection
+│       ├── models.py              # SQLAlchemy models
+│       └── main.py                # FastAPI app
+├── frontend/                      # React/Next.js (upcoming)
 ├── ml/
-│   ├── datasets/                 # ASL Alphabet + WLASL
-│   └── models/                   # Trained model files
-├── scripts/                      # Dataset exploration scripts
-└── captures/                     # Saved landmark JSON files
+│   ├── datasets/                  # ASL Alphabet + WLASL
+│   ├── models/                    # Trained model files
+│   └── training/                  # Extracted landmarks + reports
+├── scripts/                       # Dataset processing scripts
+└── captures/                      # Saved landmark JSON files
 
 ## Milestones
 
@@ -46,15 +54,24 @@ infosys-sign-language-platform/
 
 - **ASL Alphabet** — 87,000 images, 29 classes, 200x200px
 - **WLASL** — 2,000 word-level signs, video format
+- **Landmarks CSV** — 63,580 extracted samples (73% success rate)
 
 ## API Endpoints
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
+| GET | /api/health | Backend health check |
 | POST | /api/auth/register | User registration |
 | POST | /api/auth/login | User login (JWT) |
 | POST | /api/profile/create | Create learner profile |
 | GET | /api/profile/me | Get learner profile |
+| GET | /api/lessons | Get all lessons |
+| GET | /api/lessons/{id} | Get lesson details |
+| POST | /api/sessions/start/{id} | Start practice session |
+| PUT | /api/sessions/end/{id} | End practice session |
+| GET | /api/sessions/{id} | Get session details |
+| POST | /api/predict | Gesture prediction |
+| POST | /api/preprocess | Run dataset preprocessing |
 
 ## Setup
 
@@ -72,6 +89,9 @@ pip install -r app/requirements.txt
 # Run server
 cd app
 uvicorn main:app --reload
+
+# Test API docs
+# Open http://127.0.0.1:8000/docs
 ```
 
 ## Mentor
