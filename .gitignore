@@ -1,3 +1,11 @@
+# Large training files
+ml/training/landmarks.csv
+ml/training/normalized_landmarks.csv
+ml/training/train.csv
+ml/training/validation.csv
+ml/training/test.csv
+ml/training/skipped_images.txt
+
 # Training data (too large for git)
 ml/training/landmarks.csv
 ml/training/skipped_images.txt
