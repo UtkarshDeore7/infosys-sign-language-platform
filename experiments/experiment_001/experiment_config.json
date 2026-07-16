@@ -1,0 +1,23 @@
+{
+  "experiment_id": "experiment_001",
+  "date": "2026-07-15",
+  "engineer": "Utkarsh Deore",
+  "dataset_version": "v1.0",
+  "feature_version": "normalized_wrist_relative",
+  "model_used": "RandomForest",
+  "parameters": {
+    "n_estimators": 100,
+    "max_depth": null,
+    "min_samples_leaf": 1,
+    "random_state": 42
+  },
+  "dataset": {
+    "total_samples": 63579,
+    "train_size": 44505,
+    "validation_size": 9537,
+    "test_size": 9537,
+    "num_classes": 28,
+    "num_features": 63
+  },
+  "notes": "Baseline experiment using Random Forest on wrist-relative normalized landmarks"
+}

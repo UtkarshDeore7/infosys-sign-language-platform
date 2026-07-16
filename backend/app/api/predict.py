@@ -1,11 +1,16 @@
 from fastapi import APIRouter
+from pydantic import BaseModel
+from typing import List, Optional
 from services.gesture_service import GestureService
-from schemas.prediction import PredictionResponse
 
 router = APIRouter()
 gesture_service = GestureService()
 
-@router.post("/predict", response_model=PredictionResponse)
-def predict():
-    result = gesture_service.predict()
+class PredictRequest(BaseModel):
+    landmarks: Optional[List[float]] = None
+
+@router.post("/predict")
+def predict(request: PredictRequest = None):
+    landmarks = request.landmarks if request else None
+    result = gesture_service.predict(landmarks)
     return result
