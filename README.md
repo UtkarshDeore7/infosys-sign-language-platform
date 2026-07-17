@@ -9,8 +9,8 @@ This platform helps users learn sign language through real-time gesture recognit
 ## Tech Stack
 
 **Backend:** Python, FastAPI, PostgreSQL, MongoDB  
-**Frontend:** React.js, Next.js, Tailwind CSS  
-**AI/ML:** MediaPipe, TensorFlow, OpenCV, CNN/LSTM  
+**Frontend:** React.js, Next.js, Tailwind CSS (upcoming)  
+**AI/ML:** MediaPipe, Random Forest, TensorFlow, OpenCV  
 **Auth:** JWT, OAuth2  
 **DevOps:** Docker, GitHub Actions  
 
@@ -20,41 +20,65 @@ infosys-sign-language-platform/
 ├── backend/
 │   └── app/
 │       ├── ai/
-│       │   ├── hand_tracking/     # MediaPipe hand tracking
-│       │   ├── gesture_recognition/
-│       │   └── utils/             # Camera, distance utils
-│       ├── api/                   # Route handlers
-│       ├── content/               # Lesson service
-│       ├── services/              # Business logic
-│       ├── schemas/               # Pydantic models
-│       ├── core/                  # Core utilities
-│       ├── utils/                 # Shared utilities
-│       ├── auth.py                # JWT authentication
-│       ├── database.py            # DB connection
-│       ├── models.py              # SQLAlchemy models
-│       └── main.py                # FastAPI app
-├── frontend/                      # React/Next.js (upcoming)
+│       │   ├── hand_tracking/        # MediaPipe hand detection
+│       │   ├── gesture_recognition/  # Gesture classifier
+│       │   ├── ml/
+│       │   │   ├── inference/        # Pipeline, GestureEngine, SequenceBuilder
+│       │   │   ├── preprocessing/    # Normalization
+│       │   │   ├── training/         # Model training
+│       │   │   └── evaluation/       # Metrics
+│       │   └── utils/                # Camera, distance utils
+│       ├── api/                      # Route handlers
+│       ├── content/                  # Lesson service
+│       ├── services/                 # Business logic
+│       ├── schemas/                  # Pydantic models
+│       ├── core/                     # Core utilities
+│       └── utils/                    # Shared utilities
 ├── ml/
-│   ├── datasets/                  # ASL Alphabet + WLASL
-│   ├── models/                    # Trained model files
-│   └── training/                  # Extracted landmarks + reports
-├── scripts/                       # Dataset processing scripts
-└── captures/                      # Saved landmark JSON files
+│   ├── datasets/                     # ASL Alphabet + WLASL
+│   ├── models/                       # gesture_classifier.pkl
+│   └── training/                     # CSV files + reports
+├── preprocessing/                    # Normalization + split scripts
+├── scripts/                          # Data exploration utilities
+├── experiments/
+│   └── experiment_001/               # Training run tracking
+└── captures/                         # Saved landmark JSON files
 
 ## Milestones
 
 | Milestone | Week | Status |
 |-----------|------|--------|
 | Project Setup + Auth + DB | 1-2 | ✅ Complete |
-| Gesture Recognition Engine | 3-4 | 🔄 In Progress |
+| Gesture Recognition Engine | 3-4 | ✅ Complete |
 | AI Feedback + Learning Intelligence | 5-6 | ⬜ Upcoming |
 | Certification + Deployment | 7-8 | ⬜ Upcoming |
+
+## Model Performance
+
+| Classifier | Accuracy | F1 Score | Training Time |
+|-----------|---------|---------|--------------|
+| Random Forest (100 trees) | 98.64% | 98.64% | 65s |
+| KNN (k=5) | 98.58% | 98.58% | 0.13s |
+| Decision Tree | 96.98% | 96.98% | 11s |
+
+**Best Model:** Random Forest — 98.64% accuracy
+
+## Inference Benchmark
+
+| Metric | Value |
+|--------|-------|
+| Average Inference Time | 4.94 ms |
+| Throughput | 202 predictions/sec |
+| Memory Used | 0.32 MB |
+| Model Size | 72 MB |
+| Real-time Suitable | ✅ Yes (under 33ms) |
 
 ## Datasets
 
 - **ASL Alphabet** — 87,000 images, 29 classes, 200x200px
 - **WLASL** — 2,000 word-level signs, video format
 - **Landmarks CSV** — 63,580 extracted samples (73% success rate)
+- **Train/Val/Test** — 44,505 / 9,537 / 9,537 (stratified 70/15/15)
 
 ## API Endpoints
 
@@ -72,6 +96,17 @@ infosys-sign-language-platform/
 | GET | /api/sessions/{id} | Get session details |
 | POST | /api/predict | Gesture prediction |
 | POST | /api/preprocess | Run dataset preprocessing |
+
+## AI Pipeline
+
+Image/Frame → MediaPipe → 21 Landmarks → Validation →
+Wrist-Relative Normalization → 63 Feature Vector →
+Random Forest → Prediction + Confidence → Structured Response
+
+## Future Pipeline (LSTM/GRU)
+
+Webcam → Frame Buffer (20 frames) → Sequence (20×63) →
+LSTM/GRU → Continuous Sign Recognition → Sentence Formation
 
 ## Setup
 
