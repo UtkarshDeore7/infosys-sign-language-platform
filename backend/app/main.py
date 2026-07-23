@@ -11,6 +11,7 @@ from api.assessment import router as assessment_router
 from api.progress import router as progress_router
 from api.assessment_engine import router as assessment_engine_router
 from api.feedback import router as feedback_router
+from api.review import router as review_router
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -30,6 +31,7 @@ app.include_router(assessment_router, prefix="/api")
 app.include_router(progress_router, prefix="/api")
 app.include_router(assessment_engine_router, prefix="/api")
 app.include_router(feedback_router, prefix="/api")
+app.include_router(review_router, prefix="/api")
 
 @app.get("/")
 def root():
